@@ -1,14 +1,17 @@
 import random
 
 class Cards:
-    def __init__(self, value, suit, deck):
+    def __init__(self, value, card_name, suit, symbol, color, deck):
         self.value = value
+        self.card_name = card_name
         self.suit = suit
+        self.symbol = symbol
+        self.color = color
         self.deck = deck
 
 class Deck:
-    def __init__(self, deck_of_cards):
-        self.deck_of_cards = deck_of_cards
+    def __init__(self):
+        self.deck_of_cards = []
         self.create_deck()
 
     values = {
@@ -49,9 +52,7 @@ class Deck:
     def create_deck(self):
         for suit in self.suits:
             for value in self.values:
-                print(self.suits[suit]['color'], " ", self.suits[suit]['symbol'])
-                print(value, " ", self.values[value])
-                self.deck_of_cards.append(Cards(value, suit, self))
+                self.deck_of_cards.append(Cards(value, self.values[value], suit, self.suits[suit]['symbol'], self.suits[suit]['color'], self))
 
     def show_deck(self):
         print(len(self.deck_of_cards))
@@ -65,6 +66,8 @@ class Deck:
     def deal(self):
         if len(self.deck_of_cards) > 1:
             return self.deck_of_cards.pop()
+        else:
+            print("There are no more cards in the deck!")
         
 
 class Hand(Deck):
@@ -73,31 +76,30 @@ class Hand(Deck):
         self.cards = []
         self.hand_value = 0
 
-
     def add_card(self, card):
         self.cards.append(card)
 
     def calc_score(self):
         for card in self.cards:
             self.hand_value += card.value
+        return self.hand_value
     
     def deal_hand(self):
         for i in range (self.starting_cards):
             self.add_card(my_deck.deal())
     
     def show_hand(self):
+        print('Cards in hand:')
         for card in self.cards:
-            print(card.__dict__)
+            print(f'{card.card_name} {card.symbol} {card.suit}')
         
-        
-##TEST CODE
-my_deck = Deck([])
-my_deck.show_deck()
+#TEST CODE
+my_deck = Deck()
+# my_deck.show_deck()
 my_deck.shuffle()
-my_deck.show_deck()
+# my_deck.show_deck()
 hand = Hand()
 
 hand.deal_hand()
 print(hand.cards)
-print("cards in hand")
 hand.show_hand()
