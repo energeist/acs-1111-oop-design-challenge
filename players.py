@@ -10,10 +10,6 @@ class Person:
     def greet_person(self):
         print(f"Hi, {self.name} ") # will add to it 
 
-    def draw_card(self, deck):
-        brand_new_card = deck.deal()
-        self.hand.append(brand_new_card)
-        brand_new_card.show_cards()
 
     def sort(self, cards):
         self.cards = cards
