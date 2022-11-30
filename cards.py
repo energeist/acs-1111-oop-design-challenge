@@ -93,8 +93,8 @@ class Hand(Deck):
             else:
                 card_score = int(card.card_name)       
             self.hand_value += card_score
-        print(len(aces))
-        print(f'self.hand_value after filtering aces: {self.hand_value}')
+        # print(len(aces))
+        # print(f'self.hand_value after filtering aces: {self.hand_value}')
         for ace in aces:
             if self.hand_value > 10:
                 card_score = 1
@@ -108,9 +108,15 @@ class Hand(Deck):
             self.add_card(my_deck.deal())
     
     def show_hand(self):
+        color_mod = ''
+        color_end = '\33[0m'
         print('Cards in hand:')
         for card in self.cards:
-            print(f'{card.card_name} {card.symbol} {card.suit}')
+            if card.color == 'red':
+                color_mod = '\33[31m'
+            else:
+                color_mod = ''
+            print(f'[{card.card_name} {color_mod}{card.symbol} {card.suit}{color_end}]')
         
 #TEST CODE
 my_deck = Deck()
@@ -120,6 +126,5 @@ my_deck.shuffle()
 hand = Hand(3)
 
 hand.deal_hand()
-print(hand.cards)
 hand.show_hand()
 print(hand.calc_score())
