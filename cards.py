@@ -52,7 +52,8 @@ class Deck:
     def create_deck(self):
         for suit in self.suits:
             for value in self.values:
-                self.deck_of_cards.append(Cards(value, self.values[value], suit, self.suits[suit]['symbol'], self.suits[suit]['color'], self))
+                self.deck_of_cards.append(
+                    Cards(value, self.values[value], suit, self.suits[suit]['symbol'], self.suits[suit]['color'], self))
 
     def show_deck(self):
         print(len(self.deck_of_cards))
@@ -64,6 +65,7 @@ class Deck:
         return self.deck_of_cards
 
     def deal(self):
+        # print(len(self.deck_of_cards))
         if len(self.deck_of_cards) > 1:
             return self.deck_of_cards.pop()
         else:
@@ -80,8 +82,25 @@ class Hand(Deck):
         self.cards.append(card)
 
     def calc_score(self):
+        card_score = 0
+        aces = []
         for card in self.cards:
-            self.hand_value += card.value
+            if card.card_name in ['Jack','Queen','King']:
+                card_score = 10
+            elif card.card_name == 'Ace':
+                aces.append(card)
+                card_score = 0
+            else:
+                card_score = int(card.card_name)       
+            self.hand_value += card_score
+        # print(len(aces))
+        # print(f'self.hand_value after filtering aces: {self.hand_value}')
+        for ace in aces:
+            if self.hand_value > 10:
+                card_score = 1
+            else:
+                card_score = 11
+            self.hand_value += card_score
         return self.hand_value
     
     def deal_hand(self):
@@ -89,17 +108,23 @@ class Hand(Deck):
             self.add_card(my_deck.deal())
     
     def show_hand(self):
+        color_mod = ''
+        color_end = '\33[0m'
         print('Cards in hand:')
         for card in self.cards:
-            print(f'{card.card_name} {card.symbol} {card.suit}')
+            if card.color == 'red':
+                color_mod = '\33[31m'
+            else:
+                color_mod = ''
+            print(f'[{card.card_name} {color_mod}{card.symbol} {card.suit}{color_end}]')
         
 #TEST CODE
 my_deck = Deck()
 # my_deck.show_deck()
 my_deck.shuffle()
 # my_deck.show_deck()
-hand = Hand()
+hand = Hand(3)
 
 hand.deal_hand()
-print(hand.cards)
 hand.show_hand()
+print(hand.calc_score())
