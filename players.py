@@ -1,47 +1,48 @@
-# so rough, haha sorry mark (:
-# will add to it in a bit!
+from cards import Deck
+from cards import Hand
 
-class Person:
-    def __init__(self, name, player, dealer, wallet):
+class Players():
+    def __init__(self, chips, name):
         self.name = name
-        self.player = player
-        self.dealer = dealer
-        self.wallet = wallet
-
-    def greet(self):
-        print(f"Hello, {self.name} Welcome!")
-
-class Player(Person):
-    def __init__(self):
         self.hand = []
-        self.wallet = 0
+        self.chips = chips
         self.wins = 0
         self.losses = 0
 
-    def bet(self, wallet):
-        self.wallet = wallet
+    def hit(deck, hand):
+        hand.add_card(deck.deal())
+        hand.adjust_for_ace()
 
-    # def add_card(self):
-    #     pass
+    def hit_or_pass(deck): 
+        player_input = ("Would you like to (H)it or (P)ass?")
 
+        while True: 
+            if player_input.lower() == "h":
+                print("Player hits")
+        
+            elif player_input.lower == "s":
+                print("Player passes turn")
+            else:
+                print("Sorry, please input h for hit or p for pass")
+            return player_input
+    
+    
 
-    def hit_or_pass():
-        while True:
-            action = input("Would you like to hit(h) or pass(p)?")
-            if action.lower() == "h":
+class Dealer(Players):
+    def __init__(self, deck):
+        self.deck = deck
+    
+    def check_for_ace(self, hand):
+        for card in hand:
+            if card.values == "Ace":
                 return True
-            elif action.lower() == "p":
+            else:
                 return False
 
-class Dealer(Person):
-    def __init__(self, name):
-        self.name = name
-        self.hand = []
-    
-    def greet_player(self):
-        print(f"Hello {self.player} I'm {self.dealer}")
 
-    def draw(self, deck):
-        card = deck.draw()
-        self.hand.append(card)
-    
+#TEST CODE
+mark = Players()
+mark.hit_or_pass()
+
+shar = Players()
+shar.hit_or_pass()
