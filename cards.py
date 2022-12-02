@@ -104,10 +104,6 @@ class Hand(Deck):
             self.hand_value += card_score
         return self.hand_value
     
-    def deal_hand(self):
-        for i in range (self.starting_cards):
-            self.add_card(my_deck.deal())
-    
     def show_hand(self):
         color_mod = ''
         color_end = '\33[0m'

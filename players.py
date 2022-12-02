@@ -15,11 +15,13 @@ class Person:
         print("I'm just STANDING around!")
 
 class Player(Person):
-    def __init__(self, person_name, chips = 1000):
+    def __init__(self, person_name, chips = 100):
         self.person_type = 'player'
         self.person_name = person_name
         self.chips = chips
         self.hand = Hand()
+        self.is_still_playing = True
+        self.is_still_choosing = True
         self.wins = 0
         self.ties = 0
         self.losses = 0    
@@ -28,16 +30,17 @@ class Player(Person):
         super(Player, self)._introduce_self()
         print(f"I'm a {self.person_type} in this game.")
 
-    def _hit_or_stand(self): 
-        player_input = ("Would you like to (H)it or (S)tand?")
-        while True: 
-            if player_input.lower() == "h":
-                print(f"{self.name} hits!")        
-            elif player_input.lower == "s":
-                print(f"{self.name} will stand.")
+    def _hit_or_stand(self, player):
+        player_input = '' 
+        while player_input.strip().lower() not in ['h','s']:
+            player_input = input(f"{player.person_name} - would you like to (H)it or (S)tand? > ").strip().lower()
+            if player_input == "h":
+                print(f"{self.person_name} hits!")        
+            elif player_input == "s":
+                print(f"{self.person_name} will stand.")
+                player.is_still_choosing = False
             else:
-                print("Sorry, please input 'h' for hit or 's' for stay")
-        return player_input    
+                print("Sorry, please input 'h' for hit or 's' for stand")  
 
 class Dealer(Person):
     def __init__(self, person_name):
