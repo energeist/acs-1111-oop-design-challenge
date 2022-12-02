@@ -65,7 +65,6 @@ class Deck:
         return self.deck_of_cards
 
     def deal(self):
-        # print(len(self.deck_of_cards))
         if len(self.deck_of_cards) > 1:
             return self.deck_of_cards.pop()
         else:
@@ -93,8 +92,6 @@ class Hand(Deck):
             else:
                 card_score = int(card.card_name)       
             self.hand_value += card_score
-        # print(len(aces))
-        # print(f'self.hand_value after filtering aces: {self.hand_value}')
         for ace in aces:
             if self.hand_value > 10:
                 card_score = 1
@@ -123,7 +120,7 @@ my_deck = Deck()
 # my_deck.show_deck()
 my_deck.shuffle()
 # my_deck.show_deck()
-hand = Hand(3)
+hand = Hand()
 
 hand.deal_hand()
 hand.show_hand()
