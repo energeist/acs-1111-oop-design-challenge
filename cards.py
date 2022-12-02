@@ -8,6 +8,7 @@ class Cards:
         self.symbol = symbol
         self.color = color
         self.deck = deck
+        self.hidden = False
 
 class Deck:
     def __init__(self):
@@ -120,8 +121,8 @@ my_deck = Deck()
 # my_deck.show_deck()
 my_deck.shuffle()
 # my_deck.show_deck()
-hand = Hand()
+# hand = Hand()
 
-hand.deal_hand()
-hand.show_hand()
-print(hand.calc_score())
+# hand.deal_hand()
+# hand.show_hand()
+# print(hand.calc_score())
