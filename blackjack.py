@@ -1,5 +1,6 @@
 from cards import Deck
 from cards import Hand
+from players import Person
 from players import Player
 from players import Dealer
 from table import Table
@@ -10,6 +11,12 @@ if __name__ == "__main__":
     ## GAME CODE
 
     # init with player creation
+    
+    try:
+        person = Person('Test')
+    except TypeError:
+        print("Can't instantiate the abstract Person class!\n")
+    
     table = Table()
 
     #shuffle deck
