@@ -75,7 +75,7 @@ class Dealer(Person):
             card.is_hidden = False
         print(f"Cards in {self.person_name}'s hand:")
         self.hand.show_hand()
-        print(f"This hand is worth {self.hand.calc_score()} points.")
+        print(f"{self.person_name}'s hand is worth {self.hand.calc_score()} points.\n")
         if self.hand.calc_score() >= 17:
             self.is_still_choosing = False
 

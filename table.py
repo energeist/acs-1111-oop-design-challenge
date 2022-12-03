@@ -14,6 +14,7 @@ class Table:
     def __create_players(self):
         self.all_people = []
         print("This game will allow for a maximum of 3 players.")
+        print("The dealer hits on 16 and stands on 17 or higher.  Winning pays out 2:1.\n")
         player_count = 0
         while player_count < 3:
             player_name = ''
@@ -49,6 +50,7 @@ class Table:
                     print(f"Thanks for playing, {player.person_name}!")
                     player.hand.discard_hand(self)
                     table.all_people.remove(player)
+                    player.current_bet = 0
                     break
                 elif int(player.current_bet) >= 10 and int(player.current_bet) <= player.chips:
                     is_valid_bet = True
@@ -62,15 +64,21 @@ class Table:
             else:
                 player._hit_or_stand(player)
             if player.is_still_choosing:
-                incoming_card = table.dealer._deck.deal()
-                print(f"{player.person_name} is dealt {incoming_card.__dict__()}")
-                player.hand.add_card(incoming_card)
-                player.hand.show_hand()
+                incoming_card = self.dealer._deck.deal()
+                if not incoming_card: # no cards left in deck, returned False => append discarded cards to deck list and shuffle
+                    for card in table.discard_pile:
+                        table.dealer._deck.deck_of_cards.append(card)
+                    table.dealer._deck._shuffle()
+                else:    
+                    print(f"{player.person_name} is dealt {incoming_card.__dict__()}")
+                    player.hand.add_card(incoming_card)
+                    player.hand.show_hand()
+                    print(f"{player.person_name}'s hand is worth {player.hand.calc_score()} points.\n")
             else:
                 player.is_still_choosing = True # resetting for next round
                 break
             if player.hand.calc_score() > 21:
-                print(f"{player.person_name} has more than 21 and they've busted!")
+                print(f"{player.person_name} has more than 21 and they've busted!\n")
                 player.is_bust = True
                 if player.person_type == 'player':
                     player.losses += 1
@@ -82,83 +90,3 @@ class Table:
             print(f"Cards in {person.person_name}'s hand:")
             person.hand.show_hand()
 
-
-## GAME CODE
-
-# init with player creation
-table = Table()
-
-#shuffle deck
-table.dealer._deck._shuffle()
-
-# display player info
-print()
-print(f"There are {len(table.player_list)} players at the table.")
-print()
-for player in table.player_list:
-    player._introduce_self()
-table.dealer._introduce_self()
-
-# loop while there are still players in the game
-players_playing = 1
-while players_playing > 0:
-
-    # deal starting hands
-    table.dealer.deal_starting_hands(table.player_list)
-
-    # get post-deal bets
-    for player in table.player_list:
-        if player.is_still_playing:
-            table.get_bet(player)
-            print()
-
-    # show starting hands
-    for person in table.all_people:
-        print(f"Cards in {person.person_name}'s hand:")
-        person.hand.show_hand()
-        print()
-
-    # play each player hand still in game
-    for player in table.player_list:
-        if player.is_still_playing:
-            table.play_hand(player)
-
-    # play dealer hand
-    table.play_hand(table.dealer)
-    
-    # compare scores and generate W/T/L against dealer, pay out chips, discard all hands to discard pile
-    if table.dealer.is_bust:
-        print("The dealer is bust! All remaining players win!")
-        for player in table.player_list:
-            if not player.is_bust:
-                player.wins += 1
-                player.chips += int(player.current_bet)
-            player.hand.discard_hand(table)
-    else:
-        dealer_score = table.dealer.hand.calc_score()
-        for player in table.player_list:
-            if player.is_still_playing:
-                if not player.is_bust:
-                    player_score = player.hand.calc_score()
-                    if player_score > dealer_score:
-                        player.wins += 1
-                        print(f"{player.person_name}'s hand beats the dealer's! {player.person_name} wins!")
-                        player.chips += int(player.current_bet)
-                    elif player_score == dealer_score:
-                        player.ties += 1
-                        print(f"{player.person_name} ties with the dealer!")
-                    else:
-                        player.losses += 1
-                        print(f"The dealer's hand beats {player.person_name}'s. {player.person_name} loses!")
-                        player.chips -= int(player.current_bet)
-            player.hand.discard_hand(table)
-    table.dealer.hand.discard_hand(table)
-
-    # find players at table
-    players_playing = 0
-    for player in table.player_list:
-        if player.is_still_playing:
-            players_playing +=1
-#TODO: finish out the section for allowing individual player to quit, finish out game sequence and then incorporate it into a loop that can run until all players are broke or have left
-
-# Dealer hand not discarding properly
