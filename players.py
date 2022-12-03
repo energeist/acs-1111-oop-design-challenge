@@ -29,19 +29,19 @@ class Player(Person):
 
     def _introduce_self(self):
         super(Player, self)._introduce_self()
-        print(f"I'm a {self.person_type} in this game.")
+        print(f"I'm a {self.person_type} in this game.\n")
 
     def _hit_or_stand(self, player):
         player_input = '' 
         while player_input.strip().lower() not in ['h','s']:
             player_input = input(f"{player.person_name} - would you like to (H)it or (S)tand? > ").strip().lower()
             if player_input == "h":
-                print(f"{self.person_name} hits!")        
+                print(f"{self.person_name} hits!\n")        
             elif player_input == "s":
-                print(f"{self.person_name} will stand.")
+                print(f"{self.person_name} will stand.\n")
                 player.is_still_choosing = False
             else:
-                print("Sorry, please input 'h' for hit or 's' for stand")  
+                print("Sorry, please input 'h' for hit or 's' for stand\n")  
 
 class Dealer(Person):
     def __init__(self, person_name):
@@ -55,10 +55,9 @@ class Dealer(Person):
     def _introduce_self(self):
         super(Dealer, self)._introduce_self()
         print(f"I'm a {self.person_type} in this game.")
-        print(f"Don't forget, the house always wins!")
+        print(f"Don't forget, the house always wins!\n")
 
     def deal_starting_hands(self, player_list):
-        self._deck._shuffle()
         deal_round = 0
         while deal_round < 2:
             for player in player_list:
@@ -74,7 +73,9 @@ class Dealer(Person):
     def _hit_or_stand(self):
         for card in self.hand.cards:
             card.is_hidden = False
+        print(f"Cards in {self.person_name}'s hand:")
         self.hand.show_hand()
+        print(f"This hand is worth {self.hand.calc_score()} points.")
         if self.hand.calc_score() >= 17:
             self.is_still_choosing = False
 

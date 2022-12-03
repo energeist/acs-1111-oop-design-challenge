@@ -113,8 +113,6 @@ class Hand(Deck):
         return self.hand_value
     
     def show_hand(self):
-        color_mod = ''
-        color_end = '\33[0m'
         for card in self.cards:
             if card.is_hidden:
                 print("[FACE DOWN CARD]")
@@ -124,7 +122,7 @@ class Hand(Deck):
     def discard_hand(self, table):
         for card in self.cards:
             table.discard_pile.append(card)
-        self.cards = []  
+            self.cards = []
         
 #TEST CODE
 # my_deck = Deck()
