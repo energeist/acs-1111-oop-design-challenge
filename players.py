@@ -1,18 +1,23 @@
 from cards import Deck
 from cards import Hand
+from abc import ABC, abstractmethod 
 
-class Person:
+class Person(ABC):
     def __init__(self, person_name, chips = 0):
         self.person_type = "spectator"
         self.chips = chips
         self.person_name = person_name
         self.hand = "Spectators don't hold any cards!"
 
+    @abstractmethod
     def _introduce_self(self):
         print(f"Hi, I'm {self.person_name}!")
+        pass
 
+    @abstractmethod
     def _hit_or_stand(self): 
         print("I'm just standing around!")
+        pass
 
 class Player(Person):
     def __init__(self, person_name, chips = 100):
@@ -82,31 +87,19 @@ class Dealer(Person):
 #TEST CODE
 
 def test():
-    test_person = Person('Test')
-    test_person._introduce_self()
-    print(test_person.person_type)
-    print(test_person.hand)
-    print()
     mark = Player('Mark')
     mark._introduce_self()
-    mark.hand.deal_hand()
-    mark.hand.show_hand()
-    print(f"Score for this hand: {mark.hand.calc_score()}")
     print()
     shar = Player('Sharmaine')
     shar._introduce_self()
-    shar.hand.deal_hand()
-    shar.hand.show_hand()
-    print(f"Score for this hand: {shar.hand.calc_score()}")
     print()
     dealer = Dealer('Dealy McDealerface')
     dealer._introduce_self()
-    dealer.hand.deal_hand()
-    dealer.hand.show_hand()
-    print(f"Score for this hand: {dealer.hand.calc_score()}")
     print()
-    dealer._Dealer__deck._shuffle()
-    dealer._Dealer__deck._show_deck()
-    print()
+    # test_person = Person('Test')
+    # test_person._introduce_self()
+    # print(test_person.person_type)
+    # print(test_person.hand)
+    # print()
 
 # test()
