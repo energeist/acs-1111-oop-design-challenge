@@ -49,6 +49,7 @@ class Dealer(Person):
         self.person_type = "dealer"
         self._deck = Deck()
         self.hand = Hand()
+        self.is_still_choosing = True
     
     def _introduce_self(self):
         super(Dealer, self)._introduce_self()
@@ -65,15 +66,16 @@ class Dealer(Person):
                 player.hand.add_card(incoming_card)
             incoming_card = self._deck.deal()
             if deal_round == 1:
-                incoming_card.is_hidden = False
+                incoming_card.is_hidden = True
             self.hand.add_card(incoming_card)    
             deal_round += 1
 
-    def _hit_or_stand(self): 
-        # use score calc method and logic, this follows a structure
-        # score >= 17 always stand
-        # score < 17 always hit
-        pass
+    def _hit_or_stand(self):
+        for card in self.hand.cards:
+            card.is_hidden = False
+        self.hand.show_hand()
+        if self.hand.calc_score() >= 17:
+            self.is_still_choosing = False
 
 #TEST CODE
 
