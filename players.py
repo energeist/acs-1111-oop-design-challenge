@@ -3,25 +3,26 @@ from cards import Hand
 
 class Person:
     def __init__(self, person_name, chips = 0):
-        self.person_type = "bystander"
+        self.person_type = "spectator"
         self.chips = chips
         self.person_name = person_name
-        self.hand = "bystanders don't hold any cards!"
+        self.hand = "Spectators don't hold any cards!"
 
     def _introduce_self(self):
         print(f"Hi, I'm {self.person_name}!")
 
     def _hit_or_stand(self): 
-        print("I'm just STANDING around!")
+        print("I'm just standing around!")
 
 class Player(Person):
     def __init__(self, person_name, chips = 100):
-        self.person_type = 'player'
+        self.person_type = "player"
         self.person_name = person_name
         self.chips = chips
         self.hand = Hand()
         self.is_still_playing = True
         self.is_still_choosing = True
+        self.is_bust = False
         self.wins = 0
         self.ties = 0
         self.losses = 0    
@@ -45,7 +46,7 @@ class Player(Person):
 class Dealer(Person):
     def __init__(self, person_name):
         self.person_name = person_name
-        self.person_type = 'dealer'
+        self.person_type = "dealer"
         self._deck = Deck()
         self.hand = Hand()
     

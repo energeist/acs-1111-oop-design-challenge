@@ -8,14 +8,14 @@ class Cards:
         self.symbol = symbol
         self.color = color
         self.deck = deck
-        self.is_hidden = True
+        self.is_hidden = False
 
 class Deck:
     def __init__(self):
         self.deck_of_cards = []
         self.__create_deck()
 
-    values = {
+    values = { # hold positional values in case of sorting
             '1':'Ace',
             '2':'2',
             '3':'3',
@@ -83,16 +83,17 @@ class Hand(Deck):
 
     def calc_score(self):
         card_score = 0
+        self.hand_value = 0 # initialize to 0
         aces = []
         for card in self.cards:
             if card.is_hidden:
-                card_score = 0
+                card_score = 0 # do not show card value for face down cards
             else:
                 if card.card_name in ['Jack','Queen','King']:
                     card_score = 10
                 elif card.card_name == 'Ace':
                     aces.append(card)
-                    card_score = 0
+                    card_score = 0 # keep score at zero until counting aces in the list after the other cards
                 else:
                     card_score = int(card.card_name)       
                 self.hand_value += card_score
