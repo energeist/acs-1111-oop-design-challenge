@@ -29,19 +29,19 @@ class Player(Person):
 
     def _introduce_self(self):
         super(Player, self)._introduce_self()
-        print(f"I'm a {self.person_type} in this game.")
+        print(f"I'm a {self.person_type} in this game.\n")
 
     def _hit_or_stand(self, player):
         player_input = '' 
         while player_input.strip().lower() not in ['h','s']:
             player_input = input(f"{player.person_name} - would you like to (H)it or (S)tand? > ").strip().lower()
             if player_input == "h":
-                print(f"{self.person_name} hits!")        
+                print(f"{self.person_name} hits!\n")        
             elif player_input == "s":
-                print(f"{self.person_name} will stand.")
+                print(f"{self.person_name} will stand.\n")
                 player.is_still_choosing = False
             else:
-                print("Sorry, please input 'h' for hit or 's' for stand")  
+                print("Sorry, please input 'h' for hit or 's' for stand\n")  
 
 class Dealer(Person):
     def __init__(self, person_name):
@@ -49,14 +49,15 @@ class Dealer(Person):
         self.person_type = "dealer"
         self._deck = Deck()
         self.hand = Hand()
+        self.is_still_choosing = True
+        self.is_bust = False
     
     def _introduce_self(self):
         super(Dealer, self)._introduce_self()
         print(f"I'm a {self.person_type} in this game.")
-        print(f"Don't forget, the house always wins!")
+        print(f"Don't forget, the house always wins!\n")
 
     def deal_starting_hands(self, player_list):
-        self._deck._shuffle()
         deal_round = 0
         while deal_round < 2:
             for player in player_list:
@@ -65,15 +66,18 @@ class Dealer(Person):
                 player.hand.add_card(incoming_card)
             incoming_card = self._deck.deal()
             if deal_round == 1:
-                incoming_card.is_hidden = False
+                incoming_card.is_hidden = True
             self.hand.add_card(incoming_card)    
             deal_round += 1
 
-    def _hit_or_stand(self): 
-        # use score calc method and logic, this follows a structure
-        # score >= 17 always stand
-        # score < 17 always hit
-        pass
+    def _hit_or_stand(self):
+        for card in self.hand.cards:
+            card.is_hidden = False
+        print(f"Cards in {self.person_name}'s hand:")
+        self.hand.show_hand()
+        print(f"{self.person_name}'s hand is worth {self.hand.calc_score()} points.\n")
+        if self.hand.calc_score() >= 17:
+            self.is_still_choosing = False
 
 #TEST CODE
 

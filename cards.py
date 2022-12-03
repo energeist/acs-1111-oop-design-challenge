@@ -10,6 +10,13 @@ class Cards:
         self.deck = deck
         self.is_hidden = False
 
+    def __dict__(self):
+        if self.color == 'red':
+            color_mod = '\33[31m'
+        else:
+            color_mod = ''
+        return(f'[{self.card_name} {color_mod}{self.symbol} {self.suit}\33[0m]')
+
 class Deck:
     def __init__(self):
         self.deck_of_cards = []
@@ -59,7 +66,7 @@ class Deck:
     def _show_deck(self):
         print(f"There are {len(self.deck_of_cards)} cards left in this deck")
         for card in self.deck_of_cards:
-            print(card.__dict__)
+            print(card.__dict__())
 
     def _shuffle(self):
         random.shuffle(self.deck_of_cards)
@@ -106,17 +113,16 @@ class Hand(Deck):
         return self.hand_value
     
     def show_hand(self):
-        color_mod = ''
-        color_end = '\33[0m'
         for card in self.cards:
             if card.is_hidden:
                 print("[FACE DOWN CARD]")
             else:
-                if card.color == 'red':
-                    color_mod = '\33[31m'
-                else:
-                    color_mod = ''
-                print(f'[{card.card_name} {color_mod}{card.symbol} {card.suit}{color_end}]')
+                print(card.__dict__())
+
+    def discard_hand(self, table):
+        for card in self.cards:
+            table.discard_pile.append(card)
+            self.cards = []
         
 #TEST CODE
 # my_deck = Deck()
