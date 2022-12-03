@@ -34,13 +34,13 @@ class Table:
 
     def get_bet(self, player):
         is_valid_bet = False
+        player.current_bet = str('')
         if player.chips < 10:
-            print("Looks like you've had a rough night. You don't have enough chips to play!")
+            print(f"Looks like you've had a rough night, {player.person_name}! You don't have enough chips to play.")
             player.is_still_playing = False
         else:
             print(f"How much would you like to bet, {player.person_name}?")   
             while not is_valid_bet:
-                player.current_bet = ''
                 player.current_bet = input(f"Minimum bet is 10, maximum bet is {player.chips}, or enter 'x' to leave the table. > ")
                 while not re.match("[0-9xX]", player.current_bet):
                     player.current_bet = input(f"Invalid bet, {player.person_name}! Minimum bet is 10, maximum bet is {player.chips}, or enter 'x' to leave the table. > ")            
@@ -53,6 +53,7 @@ class Table:
                     break
                 elif int(player.current_bet) >= 10 and int(player.current_bet) <= player.chips:
                     is_valid_bet = True
+                    player.current_bet = int(player.current_bet)
                 else:
                     print(f"Invalid bet, {player.person_name}!")
 
@@ -74,10 +75,9 @@ class Table:
                 print(player.hand.calc_score())
                 print(f"{player.person_name} has more than 21 and they've busted!")
                 player.is_bust = True
-                player.losses += 1
+                if player.person_type == 'player':
+                    player.losses += 1
                 break
-        # print(f"hand: {player.hand.cards}")
-        # print(f"discard pile: {self.discard_pile}")
 
     def show_all_hands(self):
         for person in self.all_people:
@@ -121,7 +121,31 @@ while players_playing > 0:
     table.play_hand(table.dealer)
     
     # compare scores and generate W/T/L against dealer, pay out chips, discard all hands to discard pile
-
+    if table.dealer.is_bust:
+        print("The dealer is bust! All remaining players win!")
+        for player in table.player_list:
+            if not player.is_bust:
+                player.wins += 1
+                player.chips += player.current_bet
+            player.hand.discard_hand(table)
+    else:
+        dealer_score = table.dealer.hand.calc_score()
+        for player in table.player_list:
+            if player.is_still_playing:
+                player_score = player.hand.calc_score()
+                if player_score > dealer_score:
+                    player.wins += 1
+                    print(f"{player.person_name}'s hand beats the dealer's! {player.person_name} wins!")
+                    player.chips += player.current_bet
+                elif player_score == dealer_score:
+                    player.ties += 1
+                    print(f"{player.person_name} ties with the dealer!")
+                else:
+                    player.losses += 1
+                    print(f"The dealer's hadn beats {player.person_name}'s. {player.person_name} loses!")
+                    player.chips -= player.current_bet
+            player.hand.discard_hand(table)
+        table.dealer.hand.discard_hand(table)
 
     # find players at table
     players_playing = 0

@@ -50,6 +50,7 @@ class Dealer(Person):
         self._deck = Deck()
         self.hand = Hand()
         self.is_still_choosing = True
+        self.is_bust = False
     
     def _introduce_self(self):
         super(Dealer, self)._introduce_self()
