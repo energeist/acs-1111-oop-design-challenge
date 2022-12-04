@@ -16,14 +16,16 @@ class Cards:
     def __init__(self, value, card_name, suit, symbol, color, deck):
         """
         Class initialization
+        All attributes (except _is_hidden) made private because each instance of a Cards object has its own unique attribute values on instantiation, and they can never change.
+        _is_hidden made protected because the dealer can change this attribute from True to False.
         """
-        self.value = value
-        self.card_name = card_name
-        self.suit = suit
-        self.symbol = symbol
-        self.color = color
-        self.deck = deck
-        self.is_hidden = False
+        self.__value = value
+        self.__card_name = card_name
+        self.__suit = suit
+        self.__symbol = symbol
+        self.__color = color
+        self.__deck = deck
+        self._is_hidden = False
 
     def __dict__(self): #override dict magic method for readable string output
         """
@@ -31,28 +33,29 @@ class Cards:
         Inputs: none
         Return: string containing readable card description
         """
-        if self.color == 'red':
+        if self.__color == 'red':
             color_mod = '\33[31m'
         else:
             color_mod = ''
-        return(f'[{self.card_name} {color_mod}{self.symbol} {self.suit}\33[0m]')
+        return(f'[{self._Cards__card_name} {color_mod}{self.__symbol} {self.__suit}\33[0m]')
 
 class Deck:
     """
     Deck class is called to instantiate new Deck objects that are composed of Cards objects.
     Input params - none
-        - Initializes with deck_of_cards as an empty list
+        - Initializes with protected _deck_of_cards as an empty list, only objects with a Deck need to manipulate this attribute
         - Initializes by calling the private create_deck method which build a deck of 52 card objects inside the previously empty deck_of_cards list
     Output - none until methods are called
     """
     def __init__(self):
         """
         Class initialization
+        __create_deck made private because this is only accessed by the Deck on instantiation
         """
-        self.deck_of_cards = []
+        self._deck_of_cards = []
         self.__create_deck()
 
-    # dictionaries for card building
+    # class attribute dictionaries for card building
     values = { # hold positional values in case of sorting
             '1':'Ace',
             '2':'2',
@@ -91,13 +94,13 @@ class Deck:
     def __create_deck(self):
         """
         __create_deck method builds a deck of Cards by appending Cards objects to the deck_of_cards list.
-        Made private because only the Deck class needs access to this method 
+        Made private because only the Deck class should be able to access this method
         Inputs: none
         Return: none
         """
         for suit in self.suits:
             for value in self.values:
-                self.deck_of_cards.append(
+                self._deck_of_cards.append(
                     Cards(int(value), self.values[value], suit, self.suits[suit]['symbol'], self.suits[suit]['color'], self))
 
     def _show_deck(self):
@@ -107,8 +110,8 @@ class Deck:
         Inputs: none
         Return: none
         """
-        print(f"There are {len(self.deck_of_cards)} cards left in this deck\n")
-        for card in self.deck_of_cards:
+        print(f"There are {len(self._deck_of_cards)} cards left in this deck\n")
+        for card in self._deck_of_cards:
             print(card.__dict__())
 
     def _shuffle(self):
@@ -118,17 +121,18 @@ class Deck:
         Inputs: none
         Return: shuffled deck of cards
         """
-        random.shuffle(self.deck_of_cards)
-        return self.deck_of_cards
+        random.shuffle(self._deck_of_cards)
+        return self._deck_of_cards
 
-    def deal(self):
+    def _deal(self):
         """
         deal method removes and returns the last card (index -1) from the deck (which we refer to as the top of the deck)
+        Made protected because only objects with a deck should be able to deal cards
         Inputs: none
         Return: Last card from the deck list (Truthy value) or False, if there are no cards left in the deck
         """
-        if len(self.deck_of_cards) > 1:
-            return self.deck_of_cards.pop()
+        if len(self._deck_of_cards) > 1:
+            return self._deck_of_cards.pop()
         else:
             print("There are no more cards in the deck!\n")
             return False
@@ -149,17 +153,19 @@ class Hand:
         self.cards = []
         self.hand_value = 0
 
-    def add_card(self, card):
+    def _add_card(self, card):
         """
         add_card method appends a Card to the Hand's cards list.
+        Made protected because any object with a hand should be able to add a dealt card to their hand
         Inputs: card - a Cards object
         Return: none
         """
         self.cards.append(card)
 
-    def calc_score(self):
+    def __calc_score(self):
         """
         calc_score method calculates the current Hand's score and updates self.hand_value.
+        Made private because only the value of the cards in the hand can contribute to the hand's score.
         Inputs: none
         Return: self.hand_value
         """
@@ -167,16 +173,16 @@ class Hand:
         self.hand_value = 0 # initialize to 0
         aces = []
         for card in self.cards:
-            if card.is_hidden:
+            if card._is_hidden:
                 card_score = 0 # do not show card value for face down cards
             else:
-                if card.card_name in ['Jack','Queen','King']:
+                if card._Cards__card_name in ['Jack','Queen','King']:
                     card_score = 10
-                elif card.card_name == 'Ace':
+                elif card._Cards__card_name == 'Ace':
                     aces.append(card)
                     card_score = 0 # keep score at zero until counting aces in the list after the other cards
                 else:
-                    card_score = int(card.card_name)       
+                    card_score = int(card._Cards__card_name)       
                 self.hand_value += card_score
         for ace in aces:
             if self.hand_value > 10:
@@ -186,21 +192,22 @@ class Hand:
             self.hand_value += card_score
         return self.hand_value
     
-    def show_hand(self):
+    def _show_hand(self):
         """
         show_hand loops through the cards in the current Hand and shows them, or shows [FACE DOWN CARD] if the Cards is_hidden attribute is set to True.
         Inputs: none
         Return: none
         """
         for card in self.cards:
-            if card.is_hidden:
+            if card._is_hidden:
                 print("[FACE DOWN CARD]")
             else:
                 print(card.__dict__())
 
-    def discard_hand(self, table):
+    def _discard_hand(self, table):
         """
         discard_hand appends each card in the Hand to the Table's discard pile, and then resets the Hand's cards list to a blank list.
+        Made protected because any object with a hand should be able to discard their own hand
         Inputs: none
         Return: none
         """

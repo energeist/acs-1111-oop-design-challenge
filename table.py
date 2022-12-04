@@ -52,37 +52,7 @@ class Table:
                     break
         for player in self.player_list:
             self.all_people.append(player)
-        self.all_people.append(self.dealer) # dealer appended last because they go last in play order
- 
-    def get_bet(self, player):
-        """
-        get_bet method takes and validates bet input from a user, then stores that bet in the current Player object's current_bet attribute
-        Inputs: none
-        Return: none
-        """
-        is_valid_bet = False
-        player.current_bet = ''
-        if player.chips < 10:
-            print(f"Looks like you've had a rough night, {player.person_name}! You don't have enough chips to play.")
-            player.is_still_playing = False
-            player.is_bust = True
-        else:
-            print(f"How much would you like to bet, {player.person_name}?")   
-            while not is_valid_bet:
-                player.current_bet = input(f"Minimum bet is 10, maximum bet is {player.chips}, or enter 'x' to leave the table. > ")
-                while not re.match("[0-9xX]", player.current_bet):
-                    player.current_bet = input(f"Invalid bet, {player.person_name}! Minimum bet is 10, maximum bet is {player.chips}, or enter 'x' to leave the table. > ")            
-                if player.current_bet.strip().lower() == 'x':
-                    player.is_still_playing = False
-                    print(f"Thanks for playing, {player.person_name}!")
-                    player.hand.discard_hand(self)
-                    self.all_people.remove(player)
-                    player.current_bet = 0
-                    break
-                elif int(player.current_bet) >= 10 and int(player.current_bet) <= player.chips:
-                    is_valid_bet = True
-                else:
-                    print(f"Invalid bet, {player.person_name}!")
+        self.all_people.append(self.dealer) # dealer appended last because they go last in play order    
 
     def play_hand(self, player):
         """
@@ -90,40 +60,39 @@ class Table:
         Inputs: player - Player object - current Player making choices to play
         Return: none
         """
-        while player.is_still_choosing:
-            if player.person_type == 'dealer':
-                for card in player.hand.cards:
-                    if card.is_hidden:
-                        card.is_hidden = False
-                        print(f"{player.person_name} flips over their hidden card and reveals their starting hand.")
-                        player.hand.show_hand()
-                        print(f"{player.person_name}'s hand is worth {player.hand.calc_score()} points.\n")
+        while player._is_still_choosing:
+            if player._person_type == 'dealer':
+                for card in player._hand.cards:
+                    if card._is_hidden:
+                        card._is_hidden = False
+                        print(f"{player._person_name} flips over their hidden card and reveals their starting hand.")
+                        player._hand._show_hand()
+                        print(f"{player._person_name}'s hand is worth {player._hand._Hand__calc_score()} points.\n")
                 print()
                 player._hit_or_stand()
             else:
-                player._hit_or_stand(player)
+                player._hit_or_stand()
                 # if player.is_still_choosing == True then player selected (H)it. 
-            if player.is_still_choosing:
-                incoming_card = self.dealer._deck.deal()
+            if player._is_still_choosing:
+                incoming_card = self.dealer._deck._deal()
                 if not incoming_card: # no cards left in deck, returned False => append discarded cards to deck list and shuffle.  Not used right now because deck should reshuffle before we get to this point.
                     for card in table.discard_pile:
                         table.dealer._deck.deck_of_cards.append(card)
                     table.dealer._deck._shuffle()
-                    incoming_card = self.dealer._deck.deal()
+                    incoming_card = self.dealer._deck._deal()
                 else:    
-                    print(f"{player.person_name} is dealt {incoming_card.__dict__()}")
-                    player.hand.add_card(incoming_card)
-                    player.hand.show_hand()
-                    print(f"{player.person_name}'s hand is worth {player.hand.calc_score()} points.\n")
+                    print(f"{player._person_name} is dealt {incoming_card.__dict__()}")
+                    player._hand._add_card(incoming_card)
+                    player._hand._show_hand()
+                    print(f"{player._person_name}'s hand is worth {player._hand._Hand__calc_score()} points.\n")
             else:
-                player.is_still_choosing = True # resetting for next round
+                player._is_still_choosing = True # resetting for next round
                 break
-            if player.hand.calc_score() > 21:
-                print(f"{player.person_name} has more than 21 points and they've busted!\n")
-                player.is_bust = True
-                if player.person_type == 'player':
-                    player.losses += 1
-                    player.chips -= int(player.current_bet)
+            if player._hand._Hand__calc_score() > 21:
+                print(f"{player._person_name} has more than 21 points and they've busted!\n")
+                player._is_bust = True
+                if player._person_type == 'player':
+                    player._losses += 1
                 break
 
     def show_all_hands(self):
@@ -133,13 +102,13 @@ class Table:
         Return: none
         """
         for player in self.player_list:
-            if not player.is_bust and player.is_still_playing: 
-                print(f"Cards in {player.person_name}'s hand:")
-                player.hand.show_hand()
-                print(f"{player.person_name}'s hand is worth {player.hand.calc_score()} points.\n")
-        print(f"Cards in {self.dealer.person_name}'s hand:")
-        self.dealer.hand.show_hand()
-        print(f"{self.dealer.person_name}'s hand is worth {self.dealer.hand.calc_score()} points.\n")
+            if not player._is_bust and player._is_still_playing: 
+                print(f"Cards in {player._person_name}'s hand:")
+                player._hand._show_hand()
+                print(f"{player._person_name}'s hand is worth {player._hand._Hand__calc_score()} points.\n")
+        print(f"Cards in {self.dealer._person_name}'s hand:")
+        self.dealer._hand._show_hand()
+        print(f"{self.dealer._person_name}'s hand is worth {self.dealer._hand._Hand__calc_score()} points.\n")
 
     @phase_announcement('introduction')
     def introduce_players(self):
@@ -156,13 +125,15 @@ class Table:
     @phase_announcement('betting')
     def get_player_bets(self):
         """
-        get_player_bets method is a game logic sequence that gets bet input from each Player still in the game
+        get_player_bets method is a game logic sequence that gets bet input from each Player still in the game.  If a player chooses to leave the table then they will also discard their hand.
         Inputs: none
         Return: none
         """
         for player in self.player_list:
-            if player.is_still_playing:
-                self.get_bet(player)
+            if player._is_still_playing:
+                if not player._Player__make_bet():
+                    player._hand._discard_hand(self)
+
                 print()
 
     def player_check(self):
@@ -173,10 +144,10 @@ class Table:
         """
         players_playing = 0
         for player in self.player_list:
-            if player.is_still_playing:
-                player.is_bust = False
+            if player._is_still_playing:
+                player._is_bust = False
                 players_playing += 1
-        table.dealer.is_bust = False
+        table.dealer._is_bust = False
         return players_playing
 
     @phase_announcement('play')
@@ -187,15 +158,15 @@ class Table:
         Return: none
         """
         for player in self.player_list:
-            if player.is_still_playing:
-                print(f"It's {player.person_name}'s turn to play their hand.")
-                player.hand.show_hand()
-                print(f"{player.person_name}'s hand is worth {player.hand.calc_score()} points.\n")
+            if player._is_still_playing:
+                print(f"It's {player._person_name}'s turn to play their hand.")
+                player._hand._show_hand()
+                print(f"{player._person_name}'s hand is worth {player._hand._Hand__calc_score()} points.\n")
                 self.play_hand(player)
 
         all_bust = True
         for player in self.player_list:
-            if not player.is_bust:
+            if not player._is_bust:
                 all_bust = False
 
         if not all_bust:
@@ -209,38 +180,38 @@ class Table:
         Inputs: none
         Return: none
         """
-        if self.dealer.is_bust:
+        if self.dealer._is_bust:
             print("The dealer is bust! All remaining players win!\n")
             for player in self.player_list:
-                if not player.is_bust:
-                    player.wins += 1
-                    player.chips += int(player.current_bet)
-                player.hand.discard_hand(table)
+                if not player._is_bust:
+                    player._wins += 1
+                    player._Player__change_chips(player._current_bet * 2)
+                player._hand._discard_hand(table)
         else:
-            dealer_score = self.dealer.hand.calc_score()
+            dealer_score = self.dealer._hand._Hand__calc_score()
             for player in self.player_list:
-                if player.is_still_playing:
-                    if player.is_bust:
-                        print(f"{player.person_name} went bust!\n")
+                if player._is_still_playing:
+                    if player._is_bust:
+                        print(f"{player._person_name} went bust!\n")
                     else:
-                        player_score = player.hand.calc_score()
+                        player_score = player._hand._Hand__calc_score()
                         if player_score > dealer_score:
-                            player.wins += 1
-                            print(f"{player.person_name}'s hand is {player_score} points, which beats the dealer's {dealer_score} points! {player.person_name} wins!\n")
-                            player.chips += int(player.current_bet)
-                            if player.chips >= 1000:
+                            player._wins += 1
+                            print(f"{player._person_name}'s hand is {player_score} points, which beats the dealer's {dealer_score} points! {player._person_name} wins!\n")
+                            player._Player__change_chips(player._current_bet * 2)
+                            if player._Player__chips >= 1000:
                                 self.dealer._call_pit_boss()
-                                print(f"The pit boss caught {player.person_name} counting cards and removed them from the game!")
-                                player.is_still_playing = False
+                                print(f"The pit boss caught {player._person_name} counting cards and removed them from the game!")
+                                player._is_still_playing = False
                         elif player_score == dealer_score:
-                            player.ties += 1
-                            print(f"{player.person_name} ties with the dealer!\n")
+                            player._ties += 1
+                            print(f"{player._person_name} ties with the dealer!\n")
+                            player._Player__change_chips(player._current_bet)
                         else:
-                            player.losses += 1
-                            print(f"The dealer's hand is {dealer_score} points, which beats {player.person_name}'s {player_score} points. {player.person_name} loses!\n")
-                            player.chips -= int(player.current_bet)
-                player.hand.discard_hand(self)
-        table.dealer.hand.discard_hand(self)
+                            player._losses += 1
+                            print(f"The dealer's hand is {dealer_score} points, which beats {player._person_name}'s {player_score} points. {player._person_name} loses!\n")
+                player._hand._discard_hand(self)
+        table.dealer._hand._discard_hand(self)
     
     def reshuffle_discard_pile(self):
         """
@@ -253,11 +224,10 @@ class Table:
         else:
             print("Reshuffling the discard pile back in to the deck...\n")
             for card in table.discard_pile:
-                table.dealer._deck.deck_of_cards.append(card)
+                table.dealer._deck._deck_of_cards.append(card)
             table.dealer._deck._shuffle()
             table.discard_pile = []
             print(f"There are now {len(table.dealer._deck.deck_of_cards)} cards in the deck.\n")
-
 
 ## GAME RUN CODE
 
@@ -292,7 +262,7 @@ if __name__ == "__main__":
             print(f"Start of ROUND {rounds}!\n")
 
             # deal starting hands
-            table.dealer.deal_starting_hands(table.player_list)
+            table.dealer._Dealer__deal_starting_hands(table.player_list)
 
             # show starting hands
             table.show_all_hands()
@@ -313,6 +283,6 @@ if __name__ == "__main__":
         print(f"All players are out of chips or they've left the table. After {rounds} rounds, the game is over!\n")
         print("End of game summary:")
         for player in table.player_list:
-            print(f"{player.person_name} ended the game with {player.chips} chips.  They had {player.wins} wins, {player.ties} ties and {player.losses} losses.")
+            print(f"{player._person_name} ended the game with {player._Player__chips} chips.  They had {player._wins} wins, {player._ties} ties and {player._losses} losses.")
     else:
         print("Everyone left before the game could even start!")
