@@ -65,6 +65,7 @@ class Table:
         if player.chips < 10:
             print(f"Looks like you've had a rough night, {player.person_name}! You don't have enough chips to play.")
             player.is_still_playing = False
+            player.is_bust = True
         else:
             print(f"How much would you like to bet, {player.person_name}?")   
             while not is_valid_bet:
@@ -128,11 +129,15 @@ class Table:
         Inputs: none
         Return: none
         """
-        for person in self.all_people:
-            print(f"Cards in {person.person_name}'s hand:")
-            person.hand.show_hand()
-            print(f"{person.person_name}'s hand is worth {person.hand.calc_score()} points.\n")
-    
+        for player in self.player_list:
+            if not player.is_bust and player.is_still_playing: 
+                print(f"Cards in {player.person_name}'s hand:")
+                player.hand.show_hand()
+                print(f"{player.person_name}'s hand is worth {player.hand.calc_score()} points.\n")
+        print(f"Cards in {self.dealer.person_name}'s hand:")
+        self.dealer.hand.show_hand()
+        print(f"{self.dealer.person_name}'s hand is worth {self.dealer.hand.calc_score()} points.\n")
+
     @phase_announcement('introduction')
     def introduce_players(self):
         """
@@ -281,6 +286,7 @@ if __name__ == "__main__":
 
         if players_playing > 0:
             rounds += 1
+            print(f"Start of ROUND {rounds}!\n")
 
             # deal starting hands
             table.dealer.deal_starting_hands(table.player_list)
