@@ -1,7 +1,10 @@
 from cards import Deck
 from cards import Hand
+from players import Person
 from players import Player
 from players import Dealer
+from datetime import datetime
+from decorators import phase_announcement
 import re
 
 class Table:
@@ -32,7 +35,7 @@ class Table:
         for player in self.player_list:
             self.all_people.append(player)
         self.all_people.append(self.dealer) # dealer appended last because they go last in play order
-
+ 
     def get_bet(self, player):
         is_valid_bet = False
         player.current_bet = ''
@@ -49,7 +52,7 @@ class Table:
                     player.is_still_playing = False
                     print(f"Thanks for playing, {player.person_name}!")
                     player.hand.discard_hand(self)
-                    table.all_people.remove(player)
+                    self.all_people.remove(player)
                     player.current_bet = 0
                     break
                 elif int(player.current_bet) >= 10 and int(player.current_bet) <= player.chips:
@@ -60,6 +63,12 @@ class Table:
     def play_hand(self, player):
         while player.is_still_choosing:
             if player.person_type == 'dealer':
+                for card in player.hand.cards:
+                    if card.is_hidden:
+                        print(f"{player.person_name} flips over their hidden card.\n")
+                    card.is_hidden = False
+                player.hand.show_hand()
+                print()
                 player._hit_or_stand()
             else:
                 player._hit_or_stand(player)
@@ -89,4 +98,149 @@ class Table:
         for person in self.all_people:
             print(f"Cards in {person.person_name}'s hand:")
             person.hand.show_hand()
+            print(f"{person.person_name}'s hand is worth {person.hand.calc_score()} points.\n")
+    
+    @phase_announcement('introduction')
+    def introduce_players(self):
+        print(f"There are {len(table.player_list)} players and a dealer at the table.\n")
+        for person in self.all_people:
+            person._introduce_self()
+        self.dealer._warn_players()
 
+    @phase_announcement('betting')
+    def get_player_bets(self):
+        for player in self.player_list:
+            if player.is_still_playing:
+                self.get_bet(player)
+                print()
+
+    def player_check(self):
+        players_playing = 0
+        for player in self.player_list:
+            if player.is_still_playing:
+                player.is_bust = False
+                players_playing += 1
+        table.dealer.is_bust = False
+        return players_playing
+
+    @phase_announcement('play')
+    def play_round(self):
+        for player in self.player_list:
+            if player.is_still_playing:
+                print(f"It's {player.person_name}'s turn to play their hand.")
+                player.hand.show_hand()
+                print(f"{player.person_name}'s hand is worth {player.hand.calc_score()} points.\n")
+                self.play_hand(player)
+
+        all_bust = True
+        for player in self.player_list:
+            if not player.is_bust:
+                all_bust = False
+
+        if not all_bust:
+            # play dealer hand
+            self.play_hand(self.dealer)
+
+    @phase_announcement('scoring')
+    def round_scoring(self):
+        if self.dealer.is_bust:
+            print("The dealer is bust! All remaining players win!\n")
+            for player in self.player_list:
+                if not player.is_bust:
+                    player.wins += 1
+                    player.chips += int(player.current_bet)
+                player.hand.discard_hand(table)
+        else:
+            dealer_score = self.dealer.hand.calc_score()
+            for player in self.player_list:
+                if player.is_still_playing:
+                    if player.is_bust:
+                        print(f"{player.person_name} went bust!\n")
+                    else:
+                        player_score = player.hand.calc_score()
+                        if player_score > dealer_score:
+                            player.wins += 1
+                            print(f"{player.person_name}'s hand beats the dealer's! {player.person_name} wins!\n")
+                            player.chips += int(player.current_bet)
+                            if player.chips >= 1000:
+                                self.dealer._call_pit_boss()
+                                print(f"The pit boss caught {player.person_name} counting cards and removed them from the game!")
+                                player.is_still_playing = False
+                        elif player_score == dealer_score:
+                            player.ties += 1
+                            print(f"{player.person_name} ties with the dealer!\n")
+                        else:
+                            player.losses += 1
+                            print(f"The dealer's hand beats {player.person_name}'s. {player.person_name} loses!\n")
+                            player.chips -= int(player.current_bet)
+                player.hand.discard_hand(self)
+        table.dealer.hand.discard_hand(self)
+    
+    def reshuffle_discard_pile(self):
+        if len(table.discard_pile) <= 30:
+            print(f"There are {len(table.discard_pile)} cards in the discard pile\n")
+        else:
+            print("Reshuffling the discard pile back in to the deck...\n")
+            for card in table.discard_pile:
+                table.dealer._deck.deck_of_cards.append(card)
+            table.dealer._deck._shuffle()
+            table.discard_pile = []
+            print(f"There are now {len(table.dealer._deck.deck_of_cards)} cards in the deck.\n")
+
+
+## GAME RUN CODE
+
+if __name__ == "__main__":
+    # init with player creation
+    
+    try: # Demo ABC on Person
+        person = Person('Test')
+    except TypeError:
+        print("Can't instantiate the abstract Person class!\n")
+    
+    table = Table()
+
+    #shuffle deck
+    table.dealer._deck._shuffle()
+    rounds = 0
+
+    table.introduce_players()
+
+    # loop while there are still players in the game
+    players_playing = 1
+    while players_playing > 0:
+        
+        # get post-deal bets
+        table.get_player_bets()
+
+        # check for players at the table
+        players_playing = table.player_check()
+
+        if players_playing > 0:
+            rounds += 1
+
+            # deal starting hands
+            table.dealer.deal_starting_hands(table.player_list)
+
+            # show starting hands
+            table.show_all_hands()
+
+            # play each player hand still in game
+            table.play_round()
+
+            # compare scores and generate W/T/L against dealer, pay out chips, discard all hands to discard pile
+            table.round_scoring()
+
+            # reshuffle discard pile back in to deck if needed
+            table.reshuffle_discard_pile()
+
+        # check for players again and reset variables
+        players_playing = table.player_check()
+
+    if rounds > 0 :
+        print(f"All players are out of chips or they've left the table. After {rounds} rounds, the game is over!\n")
+        print("End of game summary:")
+        for player in table.player_list:
+            print(f"{player.person_name} ended the game with {player.chips} chips.  They had {player.wins} wins, {player.ties} ties and {player.losses} losses.")
+    else:
+        print("Everyone left before the game could even start!")

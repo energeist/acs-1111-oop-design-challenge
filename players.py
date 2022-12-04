@@ -19,8 +19,18 @@ class Person(ABC):
         print("I'm just standing around!")
         pass
 
+class CasinoEmployee: ## for Mixin on Dealer class 
+    
+    @staticmethod
+    def _warn_players():
+        print("If I catch you counting cards then I'll call the pit boss!")
+    
+    @staticmethod
+    def _call_pit_boss():
+        print("You're obviously cheating! I'm calling the pit boss!")
+
 class Player(Person):
-    def __init__(self, person_name, chips = 100):
+    def __init__(self, person_name, chips = 1010):
         self.person_type = "player"
         self.person_name = person_name
         self.chips = chips
@@ -48,7 +58,7 @@ class Player(Person):
             else:
                 print("Sorry, please input 'h' for hit or 's' for stand\n")  
 
-class Dealer(Person):
+class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
     def __init__(self, person_name):
         self.person_name = person_name
         self.person_type = "dealer"
@@ -76,13 +86,15 @@ class Dealer(Person):
             deal_round += 1
 
     def _hit_or_stand(self):
-        for card in self.hand.cards:
-            card.is_hidden = False
-        print(f"Cards in {self.person_name}'s hand:")
-        self.hand.show_hand()
-        print(f"{self.person_name}'s hand is worth {self.hand.calc_score()} points.\n")
+
+        # print(f"Cards in {self.person_name}'s hand:")
+        # self.hand.show_hand()
+        # print(f"{self.person_name}'s hand is worth {self.hand.calc_score()} points.\n")
         if self.hand.calc_score() >= 17:
             self.is_still_choosing = False
+        else:
+            self.is_still_choosing = True
+
 
 #TEST CODE
 
