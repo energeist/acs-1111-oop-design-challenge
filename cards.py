@@ -1,7 +1,22 @@
 import random
 
 class Cards:
+    """
+    Cards class is called to instantiate new Card objects that initialize with an order value,
+    a card name, suit, symbol, color and deck association.
+    Input params: 
+        - value - int - order (index) value of card within a suit
+        - card_name - str - common name of card value e.g. Ace / 2..9 / Jack, Queen, King
+        - suit - str - suit belonging to the card (hearts, etc.)
+        - symbol - str - symbol associated with the suit
+        - color - str - color associated with the suit
+        - deck - object - deck object instance associated with the card.
+    Output - none until methods are called
+    """
     def __init__(self, value, card_name, suit, symbol, color, deck):
+        """
+        Class initialization
+        """
         self.value = value
         self.card_name = card_name
         self.suit = suit
@@ -11,6 +26,11 @@ class Cards:
         self.is_hidden = False
 
     def __dict__(self): #override dict magic method for readable string output
+        """
+        __dict__ magic method override to produce friendly string output
+        Inputs: none
+        Return: string containing readable card description
+        """
         if self.color == 'red':
             color_mod = '\33[31m'
         else:
@@ -18,10 +38,21 @@ class Cards:
         return(f'[{self.card_name} {color_mod}{self.symbol} {self.suit}\33[0m]')
 
 class Deck:
+    """
+    Deck class is called to instantiate new Deck objects that are composed of Cards objects.
+    Input params - none
+        - Initializes with deck_of_cards as an empty list
+        - Initializes by calling the private create_deck method which build a deck of 52 card objects inside the previously empty deck_of_cards list
+    Output - none until methods are called
+    """
     def __init__(self):
+        """
+        Class initialization
+        """
         self.deck_of_cards = []
         self.__create_deck()
 
+    # dictionaries for card building
     values = { # hold positional values in case of sorting
             '1':'Ace',
             '2':'2',
@@ -58,38 +89,80 @@ class Deck:
         }
         
     def __create_deck(self):
+        """
+        __create_deck method builds a deck of Cards by appending Cards objects to the deck_of_cards list.
+        Made private because only the Deck class needs access to this method 
+        Inputs: none
+        Return: none
+        """
         for suit in self.suits:
             for value in self.values:
                 self.deck_of_cards.append(
                     Cards(int(value), self.values[value], suit, self.suits[suit]['symbol'], self.suits[suit]['color'], self))
 
     def _show_deck(self):
+        """
+        _show_deck method prints the entire deck of cards.
+        Made protected because only objects with a deck need to show the deck of cards
+        Inputs: none
+        Return: none
+        """
         print(f"There are {len(self.deck_of_cards)} cards left in this deck\n")
         for card in self.deck_of_cards:
             print(card.__dict__())
 
     def _shuffle(self):
+        """
+        _shuffle method uses random.shuffle to shuffle the deck of cards
+        Made protected because only objects with a deck need to shuffle the deck of cards
+        Inputs: none
+        Return: shuffled deck of cards
+        """
         random.shuffle(self.deck_of_cards)
         return self.deck_of_cards
 
     def deal(self):
+        """
+        deal method removes and returns the last card (index -1) from the deck (which we refer to as the top of the deck)
+        Inputs: none
+        Return: Last card from the deck list (Truthy value) or False, if there are no cards left in the deck
+        """
         if len(self.deck_of_cards) > 1:
             return self.deck_of_cards.pop()
         else:
             print("There are no more cards in the deck!\n")
             return False
         
-
-class Hand(Deck):
+class Hand:
+    """
+    Hand class is called to instantiate new Hand objects for the dealer and each player at the table.
+    Input params - starting_cards - int - defaults to '2' for Blackjack
+        - cards - blank list on class initialization used to hold Cards that are dealt to the Hand
+        - hand_value - int - object-associated tracker for current hand value
+    Output - none until methods are called
+    """
     def __init__(self, starting_cards = 2):
+        """
+        Class initialization
+        """
         self.starting_cards = starting_cards
         self.cards = []
         self.hand_value = 0
 
     def add_card(self, card):
+        """
+        add_card method appends a Card to the Hand's cards list.
+        Inputs: card - a Cards object
+        Return: none
+        """
         self.cards.append(card)
 
     def calc_score(self):
+        """
+        calc_score method calculates the current Hand's score and updates self.hand_value.
+        Inputs: none
+        Return: self.hand_value
+        """
         card_score = 0
         self.hand_value = 0 # initialize to 0
         aces = []
@@ -114,6 +187,11 @@ class Hand(Deck):
         return self.hand_value
     
     def show_hand(self):
+        """
+        show_hand loops through the cards in the current Hand and shows them, or shows [FACE DOWN CARD] if the Cards is_hidden attribute is set to True.
+        Inputs: none
+        Return: none
+        """
         for card in self.cards:
             if card.is_hidden:
                 print("[FACE DOWN CARD]")
@@ -121,6 +199,11 @@ class Hand(Deck):
                 print(card.__dict__())
 
     def discard_hand(self, table):
+        """
+        discard_hand appends each card in the Hand to the Table's discard pile, and then resets the Hand's cards list to a blank list.
+        Inputs: none
+        Return: none
+        """
         for card in self.cards:
             table.discard_pile.append(card)
             self.cards = []

@@ -30,7 +30,7 @@ class CasinoEmployee: ## for Mixin on Dealer class
         print("You're obviously cheating! I'm calling the pit boss!")
 
 class Player(Person):
-    def __init__(self, person_name, chips = 1010):
+    def __init__(self, person_name, chips = 100):
         self.person_type = "player"
         self.person_name = person_name
         self.chips = chips
