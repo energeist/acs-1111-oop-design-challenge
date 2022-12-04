@@ -1,26 +1,26 @@
 from cards import Deck
 from cards import Hand
-from abc import ABC, abstractmethod 
+from abc import ABC, abstractmethod
+import re 
 
-"""
-Person class is called to instantiate new people that's composed of Players, Dealer, and spectator?
-    Input parameters - none
-        - person_type that's been defined
-        - chips - int - starting at 0
-        - person_name - str - spectator's name
-        - hand - str- that's been defined
-    Output - none until methods are called
-"""
 class Person(ABC):
+    """
+    Person class is called to instantiate new people that's composed of Players, Dealer, and spectator?
+        Input parameters - none
+            - person_type that's been defined
+            - chips - int - starting at 0
+            - person_name - str - spectator's name
+            - hand - str- that's been defined
+        Output - none until methods are called
+    """
     def __init__(self, person_name, chips = 0):
         """
         Class Initialization
         """
-        self.person_type = "spectator"
-        self.chips = chips
-        self.person_name = person_name
-        self.hand = "Spectators don't hold any cards!"
-
+        self._person_type = "spectator"
+        self.__chips = chips
+        self._person_name = person_name
+        self._hand = "Spectators don't hold any cards!"
 
     @abstractmethod
     def _introduce_self(self):
@@ -30,17 +30,18 @@ class Person(ABC):
         Inputs: none
         Return: none
         """
-        print(f"Hi, I'm {self.person_name}!")
+        print(f"Hi, I'm {self._person_name}!")
         pass
+        
 
     @abstractmethod
-    def _hit_or_stand(self): 
+    def _hit_or_stand(self):
         """
         _hit_or_stands is a private method that states what the spectator is doing in the game. Made private
         because only Person can have access to this method.
         Inputs: none
         Return: none
-        """
+        """ 
         print("I'm just standing around!")
         pass
 
@@ -82,20 +83,21 @@ class Player(Person):
         - losses - int - starts at 0
     Output - none until methods are called
     """
-    def __init__(self, person_name, chips = 100):
+    def __init__(self, person_name, starting_chips = 100):
         """
         Class Initialization
         """
-        self.person_type = "player"
-        self.person_name = person_name
-        self.chips = chips
-        self.hand = Hand()
-        self.is_still_playing = True
-        self.is_still_choosing = True
-        self.is_bust = False
-        self.wins = 0
-        self.ties = 0
-        self.losses = 0    
+        self._person_type = "player"
+        self._person_name = person_name
+        self.__chips = starting_chips
+        self._hand = Hand()
+        self._current_bet = 0
+        self._is_still_playing = True
+        self._is_still_choosing = True
+        self._is_bust = False
+        self._wins = 0
+        self._ties = 0
+        self._losses = 0    
 
     def _introduce_self(self):
         """
@@ -105,10 +107,9 @@ class Player(Person):
         Return: none
         """
         super(Player, self)._introduce_self()
-        print(f"I'm a {self.person_type} in this game.\n")
+        print(f"I'm a {self._person_type} in this game.\n")
 
-
-    def _hit_or_stand(self, player):
+    def _hit_or_stand(self):
         """
         _hit_or_stand is a private method states whether the player hits or stands. Made private because only the
         player needs access to this method. 
@@ -117,14 +118,49 @@ class Player(Person):
         """
         player_input = '' 
         while player_input.strip().lower() not in ['h','s']:
-            player_input = input(f"{player.person_name} - would you like to (H)it or (S)tand? > ").strip().lower()
+            player_input = input(f"{self._person_name} - would you like to (H)it or (S)tand? > ").strip().lower()
             if player_input == "h":
-                print(f"{self.person_name} hits!\n")        
+                print(f"{self._person_name} hits!\n")        
             elif player_input == "s":
-                print(f"{self.person_name} will stand.\n")
-                player.is_still_choosing = False
+                print(f"{self._person_name} will stand.\n")
+                self._is_still_choosing = False
             else:
-                print("Sorry, please input 'h' for hit or 's' for stand\n")  
+                print("Sorry, please input 'h' for hit or 's' for stand\n")
+
+    def __make_bet(self):
+        """
+        __make_bet method allows the current player to make a bet
+        Made private because players make their own bets
+        Inputs: none
+        Return: none
+        """
+        is_valid_bet = False
+        print(f"How much would you like to bet, {self._person_name}?")   
+        while not is_valid_bet:
+            current_bet = input(f"Minimum bet is 10, maximum bet is {self.__chips}, or enter 'x' to leave the table. > ")
+            while not re.match("[0-9xX]", current_bet):
+                current_bet = input(f"Invalid bet, {self._person_name}! Minimum bet is 10, maximum bet is {self.__chips}, or enter 'x' to leave the table. > ")            
+            if current_bet.strip().lower() == 'x':
+                self._is_still_playing = False
+                print(f"Thanks for playing, {self._person_name}!")
+                current_bet = 0
+                return False
+            elif int(current_bet) >= 10 and int(current_bet) <= self.__chips:
+                is_valid_bet = True
+                self._current_bet = int(current_bet)
+                self.__change_chips(-(int(current_bet)))
+                return True
+            else:
+                print(f"Invalid bet, {self._person_name}!")
+
+    def __change_chips(self, amount):
+        """
+        __change_chips method changes the current player's chips total
+        Made private because only players can change their own chip total.  They remove chips from their stash when making a bet and add chips on a tie or win.
+        Inputs: amount - int - amount of chips to add or subtract (-ve amount)
+        Return: none
+        """
+        self.__chips += amount
 
 class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
     """
@@ -141,12 +177,12 @@ class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
         """
         Class Initialization
         """
-        self.person_name = person_name
-        self.person_type = "dealer"
+        self._person_type = "dealer"
+        self._person_name = person_name
         self._deck = Deck()
-        self.hand = Hand()
-        self.is_still_choosing = True
-        self.is_bust = False
+        self._hand = Hand()
+        self._is_still_choosing = True
+        self._is_bust = False
     
     def _introduce_self(self):
         """
@@ -156,10 +192,10 @@ class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
         Return: none
         """
         super(Dealer, self)._introduce_self()
-        print(f"I'm a {self.person_type} in this game.")
+        print(f"I'm a {self._person_type} in this game.")
         print(f"Don't forget, the house always wins!\n")
 
-    def deal_starting_hands(self, player_list):
+    def __deal_starting_hands(self, player_list):
         """
         deal_starting_hands is a method that  
         Inputs: none
@@ -168,13 +204,13 @@ class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
         deal_round = 0
         while deal_round < 2:
             for player in player_list:
-                incoming_card = self._deck.deal()
+                incoming_card = self._deck._deal()
                 incoming_card.is_hidden = False
-                player.hand.add_card(incoming_card)
-            incoming_card = self._deck.deal()
+                player._hand._add_card(incoming_card)
+            incoming_card = self._deck._deal()
             if deal_round == 1:
-                incoming_card.is_hidden = True
-            self.hand.add_card(incoming_card)    
+                incoming_card._is_hidden = True
+            self._hand._add_card(incoming_card)    
             deal_round += 1
 
     def _hit_or_stand(self):
@@ -184,32 +220,7 @@ class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
         Inputs: none
         Return: none
         """
-
-        # print(f"Cards in {self.person_name}'s hand:")
-        # self.hand.show_hand()
-        # print(f"{self.person_name}'s hand is worth {self.hand.calc_score()} points.\n")
-        if self.hand.calc_score() >= 17:
-            self.is_still_choosing = False
+        if self._hand._Hand__calc_score() >= 17:
+            self._is_still_choosing = False
         else:
-            self.is_still_choosing = True
-
-
-#TEST CODE
-
-def test():
-    mark = Player('Mark')
-    mark._introduce_self()
-    print()
-    shar = Player('Sharmaine')
-    shar._introduce_self()
-    print()
-    dealer = Dealer('Dealy McDealerface')
-    dealer._introduce_self()
-    print()
-    # test_person = Person('Test')
-    # test_person._introduce_self()
-    # print(test_person.person_type)
-    # print(test_person.hand)
-    # print()
-
-# test()
+            self._is_still_choosing = True
