@@ -1,3 +1,6 @@
+"""
+Decorator used to embellish the phase announcement
+"""
 def phase_announcement(phase):
     def wrapper_function(method):
         def wrapper(self):

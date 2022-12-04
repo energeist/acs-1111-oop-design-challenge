@@ -8,13 +8,31 @@ from decorators import phase_announcement
 import re
 
 class Table:
+    """
+    Deck class is called to instantiate new Deck objects that are composed of Cards objects.
+    Input params - none
+        - Initializes with player_list as an empty list
+        - Initializes with a predefined Dealer object
+        - Initializes with private create_players method to take user input on instantiation
+        - Initializes with discard_pile as an empty list 
+    Output - none until methods are called
+    """
     def __init__(self):
+        """
+        Class intialization
+        """
         self.player_list = []
         self.dealer = Dealer("Dealy McDealerface")
         self._Table__create_players()
         self.discard_pile = []
 
     def __create_players(self):
+        """
+        __create_players method builds a deck of Cards by appending Cards objects to the deck_of_cards list.
+        Made private because only the Table the game can only start with new players at a Table 
+        Inputs: none
+        Return: none
+        """
         self.all_people = []
         print("This game will allow for a maximum of 3 players.")
         print("The dealer hits on 16 and stands on 17 or higher.  Winning pays out 2:1.\n")
@@ -37,6 +55,11 @@ class Table:
         self.all_people.append(self.dealer) # dealer appended last because they go last in play order
  
     def get_bet(self, player):
+        """
+        get_bet method takes and validates bet input from a user, then stores that bet in the current Player object's current_bet attribute
+        Inputs: none
+        Return: none
+        """
         is_valid_bet = False
         player.current_bet = ''
         if player.chips < 10:
@@ -61,6 +84,11 @@ class Table:
                     print(f"Invalid bet, {player.person_name}!")
 
     def play_hand(self, player):
+        """
+        play_hand method is a game logic sequence that plays the current Player's hand
+        Inputs: player - Player object - current Player making choices to play
+        Return: none
+        """
         while player.is_still_choosing:
             if player.person_type == 'dealer':
                 for card in player.hand.cards:
@@ -95,6 +123,11 @@ class Table:
                 break
 
     def show_all_hands(self):
+        """
+        show_all_hands method is a game logic sequence that displays the hands for all Players and the Dealer at the table
+        Inputs: none
+        Return: none
+        """
         for person in self.all_people:
             print(f"Cards in {person.person_name}'s hand:")
             person.hand.show_hand()
@@ -102,6 +135,11 @@ class Table:
     
     @phase_announcement('introduction')
     def introduce_players(self):
+        """
+        introduce_players method is a game logic sequence that introduces the Players and Dealer by calling their internal methods
+        Inputs: none
+        Return: none
+        """
         print(f"There are {len(table.player_list)} players and a dealer at the table.\n")
         for person in self.all_people:
             person._introduce_self()
@@ -109,12 +147,22 @@ class Table:
 
     @phase_announcement('betting')
     def get_player_bets(self):
+        """
+        get_player_bets method is a game logic sequence that gets bet input from each Player still in the game
+        Inputs: none
+        Return: none
+        """
         for player in self.player_list:
             if player.is_still_playing:
                 self.get_bet(player)
                 print()
 
     def player_check(self):
+        """
+        player_check method is a game logic sequence that checks to see if there are still Players in the game
+        Inputs: none
+        Return: players_playing - int - number of Players with is_stil_playing attribute set to True
+        """
         players_playing = 0
         for player in self.player_list:
             if player.is_still_playing:
@@ -125,6 +173,11 @@ class Table:
 
     @phase_announcement('play')
     def play_round(self):
+        """
+        play_round method is a game logic sequence that determines whether the Dealer's hand needs to be played or not
+        Inputs: none
+        Return: none
+        """
         for player in self.player_list:
             if player.is_still_playing:
                 print(f"It's {player.person_name}'s turn to play their hand.")
@@ -143,6 +196,11 @@ class Table:
 
     @phase_announcement('scoring')
     def round_scoring(self):
+        """
+        round_scoring method is a game logic sequence that calculates the scores for each hand and determines win/loss status, pays or removes chips and discards all hands to the discard_pile
+        Inputs: none
+        Return: none
+        """
         if self.dealer.is_bust:
             print("The dealer is bust! All remaining players win!\n")
             for player in self.player_list:
@@ -177,6 +235,11 @@ class Table:
         table.dealer.hand.discard_hand(self)
     
     def reshuffle_discard_pile(self):
+        """
+        reshuffle_discard_pile method is a game logic sequence that moves cards from the discard_pile back to the deck and reshuffles as necessary
+        Inputs: none
+        Return: none
+        """
         if len(table.discard_pile) <= 30:
             print(f"There are {len(table.discard_pile)} cards in the discard pile\n")
         else:
