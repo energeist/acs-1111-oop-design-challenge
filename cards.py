@@ -10,7 +10,7 @@ class Cards:
         self.deck = deck
         self.is_hidden = False
 
-    def __dict__(self):
+    def __dict__(self): #override dict magic method for readable string output
         if self.color == 'red':
             color_mod = '\33[31m'
         else:
@@ -64,7 +64,7 @@ class Deck:
                     Cards(int(value), self.values[value], suit, self.suits[suit]['symbol'], self.suits[suit]['color'], self))
 
     def _show_deck(self):
-        print(f"There are {len(self.deck_of_cards)} cards left in this deck")
+        print(f"There are {len(self.deck_of_cards)} cards left in this deck\n")
         for card in self.deck_of_cards:
             print(card.__dict__())
 
@@ -76,7 +76,8 @@ class Deck:
         if len(self.deck_of_cards) > 1:
             return self.deck_of_cards.pop()
         else:
-            print("There are no more cards in the deck!")
+            print("There are no more cards in the deck!\n")
+            return False
         
 
 class Hand(Deck):

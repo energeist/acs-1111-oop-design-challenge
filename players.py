@@ -19,6 +19,14 @@ class Person(ABC):
         print("I'm just standing around!")
         pass
 
+class CasinoEmployee: ## for Mixin on Dealer class 
+    
+    def _warn_players(self):
+        print("If I catch you counting cards then I'll call the pit boss!")
+    
+    def _call_pit_boss(self):
+        print("You're obviously cheating! I'm calling the pit boss!")
+
 class Player(Person):
     def __init__(self, person_name, chips = 100):
         self.person_type = "player"
@@ -48,7 +56,7 @@ class Player(Person):
             else:
                 print("Sorry, please input 'h' for hit or 's' for stand\n")  
 
-class Dealer(Person):
+class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
     def __init__(self, person_name):
         self.person_name = person_name
         self.person_type = "dealer"
