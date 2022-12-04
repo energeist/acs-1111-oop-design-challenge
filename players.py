@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 import re 
 
 class Person(ABC):
+
     """
     Person class is called to instantiate new people that's composed of Players, Dealer, and spectator?
         Input parameters - none
@@ -17,6 +18,7 @@ class Person(ABC):
         """
         Class Initialization
         """
+
         self._person_type = "spectator"
         self.__chips = chips
         self._person_name = person_name
@@ -24,6 +26,7 @@ class Person(ABC):
 
     @abstractmethod
     def _introduce_self(self):
+
         """
         _introduce_self is a private method that states the person_name in the game. Made private
         because only Person can have access to this method.
@@ -42,10 +45,12 @@ class Person(ABC):
         Inputs: none
         Return: none
         """ 
+
         print("I'm just standing around!")
         pass
 
 class CasinoEmployee: ## for Mixin on Dealer class 
+
     """
     CasinoEmployee class is called for Mixin on Dealer class 
     """
@@ -57,10 +62,12 @@ class CasinoEmployee: ## for Mixin on Dealer class
         Inputs: none
         Return: none
         """
+
         print("If I catch you counting cards then I'll call the pit boss!")
     
     @staticmethod
     def _call_pit_boss():
+
         """
         _call_pit_boss is a private method that calls someone out for cheating! Made private
         because only the Dealer can have access to this method.
@@ -87,6 +94,8 @@ class Player(Person):
         """
         Class Initialization
         """
+
+
         self._person_type = "player"
         self._person_name = person_name
         self.__chips = starting_chips
@@ -100,22 +109,26 @@ class Player(Person):
         self._losses = 0    
 
     def _introduce_self(self):
+
         """
         _introduce_self is a private method that states the person_type in the game. Made private
         because only he player needs access to this method.  
         Inputs: none
         Return: none
         """
+
         super(Player, self)._introduce_self()
         print(f"I'm a {self._person_type} in this game.\n")
 
     def _hit_or_stand(self):
+
         """
         _hit_or_stand is a private method states whether the player hits or stands. Made private because only the
         player needs access to this method. 
         Inputs: player_input = asks whoever is the player whether they would like to hit or stand
         Return: none
         """
+
         player_input = '' 
         while player_input.strip().lower() not in ['h','s']:
             player_input = input(f"{self._person_name} - would you like to (H)it or (S)tand? > ").strip().lower()
@@ -163,6 +176,7 @@ class Player(Person):
         self.__chips += amount
 
 class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
+
     """
     Dealer class is called to instantiate new Person objects for CasinoEmployee.
     Input params - person_type - str - defaults to dealer
@@ -177,6 +191,7 @@ class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
         """
         Class Initialization
         """
+
         self._person_type = "dealer"
         self._person_name = person_name
         self._deck = Deck()
@@ -185,22 +200,26 @@ class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
         self._is_bust = False
     
     def _introduce_self(self):
+
         """
         _introduce_self is a private method that states the person_type in the game. Made private because only the dealer
         can access this method.
         Inputs: none
         Return: none
         """
+
         super(Dealer, self)._introduce_self()
         print(f"I'm a {self._person_type} in this game.")
         print(f"Don't forget, the house always wins!\n")
 
     def __deal_starting_hands(self, player_list):
+
         """
         deal_starting_hands is a method that  
         Inputs: none
         Return: none
         """
+
         deal_round = 0
         while deal_round < 2:
             for player in player_list:
@@ -214,6 +233,7 @@ class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
             deal_round += 1
 
     def _hit_or_stand(self):
+
         """
         _hit_or_stand is a private method that checks if the cards in player's hand is greater than
         17. Made private because only the Dealer can call this method.
@@ -224,3 +244,6 @@ class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
             self._is_still_choosing = False
         else:
             self._is_still_choosing = True
+
+       
+
