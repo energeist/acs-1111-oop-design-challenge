@@ -94,19 +94,22 @@ class Table:
             if player.person_type == 'dealer':
                 for card in player.hand.cards:
                     if card.is_hidden:
-                        print(f"{player.person_name} flips over their hidden card.\n")
-                    card.is_hidden = False
-                player.hand.show_hand()
+                        card.is_hidden = False
+                        print(f"{player.person_name} flips over their hidden card and reveals their starting hand.")
+                        player.hand.show_hand()
+                        print(f"{player.person_name}'s hand is worth {player.hand.calc_score()} points.\n")
                 print()
                 player._hit_or_stand()
             else:
                 player._hit_or_stand(player)
+                # if player.is_still_choosing == True then player selected (H)it. 
             if player.is_still_choosing:
                 incoming_card = self.dealer._deck.deal()
-                if not incoming_card: # no cards left in deck, returned False => append discarded cards to deck list and shuffle
+                if not incoming_card: # no cards left in deck, returned False => append discarded cards to deck list and shuffle.  Not used right now because deck should reshuffle before we get to this point.
                     for card in table.discard_pile:
                         table.dealer._deck.deck_of_cards.append(card)
                     table.dealer._deck._shuffle()
+                    incoming_card = self.dealer._deck.deal()
                 else:    
                     print(f"{player.person_name} is dealt {incoming_card.__dict__()}")
                     player.hand.add_card(incoming_card)
@@ -116,7 +119,7 @@ class Table:
                 player.is_still_choosing = True # resetting for next round
                 break
             if player.hand.calc_score() > 21:
-                print(f"{player.person_name} has more than 21 and they've busted!\n")
+                print(f"{player.person_name} has more than 21 points and they've busted!\n")
                 player.is_bust = True
                 if player.person_type == 'player':
                     player.losses += 1
@@ -223,7 +226,7 @@ class Table:
                         player_score = player.hand.calc_score()
                         if player_score > dealer_score:
                             player.wins += 1
-                            print(f"{player.person_name}'s hand beats the dealer's! {player.person_name} wins!\n")
+                            print(f"{player.person_name}'s hand is {player_score} points, which beats the dealer's {dealer_score} points! {player.person_name} wins!\n")
                             player.chips += int(player.current_bet)
                             if player.chips >= 1000:
                                 self.dealer._call_pit_boss()
@@ -234,7 +237,7 @@ class Table:
                             print(f"{player.person_name} ties with the dealer!\n")
                         else:
                             player.losses += 1
-                            print(f"The dealer's hand beats {player.person_name}'s. {player.person_name} loses!\n")
+                            print(f"The dealer's hand is {dealer_score} points, which beats {player.person_name}'s {player_score} points. {player.person_name} loses!\n")
                             player.chips -= int(player.current_bet)
                 player.hand.discard_hand(self)
         table.dealer.hand.discard_hand(self)
