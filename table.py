@@ -63,6 +63,12 @@ class Table:
     def play_hand(self, player):
         while player.is_still_choosing:
             if player.person_type == 'dealer':
+                for card in player.hand.cards:
+                    if card.is_hidden:
+                        print(f"{player.person_name} flips over their hidden card.\n")
+                    card.is_hidden = False
+                player.hand.show_hand()
+                print()
                 player._hit_or_stand()
             else:
                 player._hit_or_stand(player)
@@ -156,6 +162,10 @@ class Table:
                             player.wins += 1
                             print(f"{player.person_name}'s hand beats the dealer's! {player.person_name} wins!\n")
                             player.chips += int(player.current_bet)
+                            if player.chips >= 1000:
+                                self.dealer._call_pit_boss()
+                                print(f"The pit boss caught {player.person_name} counting cards and removed them from the game!")
+                                player.is_still_playing = False
                         elif player_score == dealer_score:
                             player.ties += 1
                             print(f"{player.person_name} ties with the dealer!\n")
