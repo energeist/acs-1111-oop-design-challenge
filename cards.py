@@ -124,12 +124,3 @@ class Hand(Deck):
         for card in self.cards:
             table.discard_pile.append(card)
             self.cards = []
-        
-#TEST CODE
-# my_deck = Deck()
-# my_deck._shuffle()
-# my_deck._show_deck()
-
-# hand.deal_hand()
-# hand.show_hand()
-# print(hand.calc_score())
