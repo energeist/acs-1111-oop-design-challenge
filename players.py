@@ -4,21 +4,19 @@ from abc import ABC, abstractmethod
 import re 
 
 class Person(ABC):
-
     """
-    Person class is called to instantiate new people that's composed of Players, Dealer, and spectator?
+    Person class is an abstract base class used in the construction of Players and Dealers.
         Input parameters - none
-            - person_type that's been defined
-            - chips - int - starting at 0
-            - person_name - str - spectator's name
-            - hand - str- that's been defined
-        Output - none until methods are called
+        - person_type - str that's been defined
+        - chips - int - starting at 0
+        - person_name - str - spectator's name
+        - hand - str
+        Output - none
     """
     def __init__(self, person_name, chips = 0):
         """
         Class Initialization
         """
-
         self._person_type = "spectator"
         self.__chips = chips
         self._person_name = person_name
@@ -26,10 +24,8 @@ class Person(ABC):
 
     @abstractmethod
     def _introduce_self(self):
-
         """
-        _introduce_self is a private method that states the person_name in the game. Made private
-        because only Person can have access to this method.
+        _introduce_self is a protected method that states the person_name in the game. Made protected so that it can be inherited by subclasses.
         Inputs: none
         Return: none
         """
@@ -40,62 +36,34 @@ class Person(ABC):
     @abstractmethod
     def _hit_or_stand(self):
         """
-        _hit_or_stands is a private method that states what the spectator is doing in the game. Made private
-        because only Person can have access to this method.
+        _hit_or_stands is a protected method that covers the play logic for a person.  Made protected so that it can be inherited by subclasses.
         Inputs: none
         Return: none
         """ 
-
         print("I'm just standing around!")
         pass
 
-class CasinoEmployee: ## for Mixin on Dealer class 
-
-    """
-    CasinoEmployee class is called for Mixin on Dealer class 
-    """
-    @staticmethod
-    def _warn_players():
-        """
-        _warn_players is a private method that states a warning if someone is suspected of cheating! Made private
-        because only the Dealer can have access to this method.
-        Inputs: none
-        Return: none
-        """
-
-        print("If I catch you counting cards then I'll call the pit boss!")
-    
-    @staticmethod
-    def _call_pit_boss():
-
-        """
-        _call_pit_boss is a private method that calls someone out for cheating! Made private
-        because only the Dealer can have access to this method.
-        Inputs: none
-        Return: none
-        """
-        print("You're obviously cheating! I'm calling the pit boss!")
-
 class Player(Person):
     """
-    Player class is called to instantiate new Person objects for the dealer.
-    Input params - person_type - str - defaults to player
-        - person_name - str - player's name
-        - chips - int - set at 100
-        - hand - object of Hand class
-        - is_still_playing - boolean - set to True
-        - is_stille_choosing - boolean - set to True
-        - wins - int - starts at 0
-        - ties - int - starts at 0
-        - losses - int - starts at 0
+    Player class in herits from Person and builds upon the functionality of Person.
+    Input params: 
+    - _person_name - str - player's name
+    - __chips - int - set at 100 - Made private because only the player should be able to modify their chip amount
+    Initializes with:
+    - _person_type - str - defaults to player
+    - _hand - object of Hand class
+    - _is_still_playing - boolean - set to True
+    - _is_stille_choosing - boolean - set to True
+    - _wins - int - starts at 0
+    - _ties - int - starts at 0
+    - _losses - int - starts at 0
+    - All other methods made protected instead of private because they can be accessed from multiple places
     Output - none until methods are called
     """
     def __init__(self, person_name, starting_chips = 100):
         """
         Class Initialization
         """
-
-
         self._person_type = "player"
         self._person_name = person_name
         self.__chips = starting_chips
@@ -109,26 +77,20 @@ class Player(Person):
         self._losses = 0    
 
     def _introduce_self(self):
-
         """
-        _introduce_self is a private method that states the person_type in the game. Made private
-        because only he player needs access to this method.  
+        _introduce_self is a protected method that states the person_type in the game. Made protected because this method appears across multiple subclasses of Person.  
         Inputs: none
         Return: none
         """
-
         super(Player, self)._introduce_self()
         print(f"I'm a {self._person_type} in this game.\n")
 
     def _hit_or_stand(self):
-
         """
-        _hit_or_stand is a private method states whether the player hits or stands. Made private because only the
-        player needs access to this method. 
-        Inputs: player_input = asks whoever is the player whether they would like to hit or stand
+        _hit_or_stand is a private method states whether the player hits or stands. Made protected because this method appears across multiple subclasses of Person.
+        Inputs: none
         Return: none
         """
-
         player_input = '' 
         while player_input.strip().lower() not in ['h','s']:
             player_input = input(f"{self._person_name} - would you like to (H)it or (S)tand? > ").strip().lower()
@@ -175,39 +137,59 @@ class Player(Person):
         """
         self.__chips += amount
 
-class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
-
+class CasinoEmployee: ## for Mixin on Dealer class 
     """
-    Dealer class is called to instantiate new Person objects for CasinoEmployee.
-    Input params - person_type - str - defaults to dealer
-        - person_name - str - dealer's name
-        - _deck - object of Deck class
-        - hand - object of Hand class
-        - is_stille_choosing - boolean - set to True
-        - is_still_bust - boolean - set to False
+    CasinoEmployee class is called as a Mixin on Dealer class 
+    """
+    @staticmethod
+    def _warn_players():
+        """
+        _warn_players is a protected method that states a warning if someone is suspected of cheating! Made protected because only the dealer can do this action.
+        Inputs: none
+        Return: none
+        """
+
+        print("If I catch you counting cards then I'll call the pit boss!")
+    
+    @staticmethod
+    def _call_pit_boss():
+        """
+        _call_pit_boss is a protected method that calls someone out for cheating (or just doing too well)! Made protected because only the dealer can do this action.
+        Inputs: none
+        Return: none
+        """
+        print("You're obviously cheating! I'm calling the pit boss!")
+
+class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
+    """
+    Dealer uses multiple inheritance - it is a subclass of Person that uses the CasinoEmployee mixin class
+    Input params: - _person_name - str - dealer's name 
+    Initializes with:
+    - _person_type - str - defaults to dealer
+    - _deck - object of Deck class
+    - _hand - object of Hand class
+    - _is_still_choosing - boolean - initialize to True
+    - _is_bust - boolean - intialize to False
     Output - none until methods are called
+    - All attributes made protected because they are accessed by other game components
     """
     def __init__(self, person_name):
         """
         Class Initialization
         """
-
-        self._person_type = "dealer"
         self._person_name = person_name
+        self._person_type = "dealer"
         self._deck = Deck()
         self._hand = Hand()
         self._is_still_choosing = True
         self._is_bust = False
     
     def _introduce_self(self):
-
         """
-        _introduce_self is a private method that states the person_type in the game. Made private because only the dealer
-        can access this method.
+        _introduce_self is a protected method that states the person_type in the game. Made protected because this method appears across multiple subclasses of Person.
         Inputs: none
         Return: none
         """
-
         super(Dealer, self)._introduce_self()
         print(f"I'm a {self._person_type} in this game.")
         print(f"Don't forget, the house always wins!\n")
@@ -215,8 +197,8 @@ class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
     def __deal_starting_hands(self, player_list):
 
         """
-        deal_starting_hands is a method that  
-        Inputs: none
+        deal_starting_hands is a private method that deals out the hands at the start of the game. 
+        Inputs: player_list - list - The list of players generated by the Table
         Return: none
         """
 
@@ -235,10 +217,9 @@ class Dealer(Person, CasinoEmployee): # Multiple inheritance / Mixin
     def _hit_or_stand(self):
 
         """
-        _hit_or_stand is a private method that checks if the cards in player's hand is greater than
-        17. Made private because only the Dealer can call this method.
+        _hit_or_stand is a protected method that checks if the cards in player's hand is greater than 17. Made protected because this method appears across multiple subclasses of Person.
         Inputs: none
-        Return: none
+        Return: boolean used to be interpreted as whether the dealer hits or stands in the play phase.
         """
         if self._hand._Hand__calc_score() >= 17:
             self._is_still_choosing = False
