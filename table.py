@@ -77,7 +77,7 @@ class Table:
                 incoming_card = self.dealer._deck._deal()
                 if not incoming_card: # no cards left in deck, returned False => append discarded cards to deck list and shuffle.  Not used right now because deck should reshuffle before we get to this point.
                     for card in table.discard_pile:
-                        table.dealer._deck.deck_of_cards.append(card)
+                        table.dealer._deck._deck_of_cards.append(card)
                     table.dealer._deck._shuffle()
                     incoming_card = self.dealer._deck._deal()
                 else:    
@@ -130,6 +130,9 @@ class Table:
         Return: none
         """
         for player in self.player_list:
+            if player._Player__chips < 10:
+                print(f"Sorry {player._person_name}, looks like you don't have enough chips to keep playing!")
+                player._is_still_playing = False
             if player._is_still_playing:
                 if not player._Player__make_bet():
                     player._hand._discard_hand(self)
@@ -186,6 +189,7 @@ class Table:
                 if not player._is_bust:
                     player._wins += 1
                     player._Player__change_chips(player._current_bet * 2)
+                    player._current_bet = 0
                 player._hand._discard_hand(table)
         else:
             dealer_score = self.dealer._hand._Hand__calc_score()
@@ -199,6 +203,7 @@ class Table:
                             player._wins += 1
                             print(f"{player._person_name}'s hand is {player_score} points, which beats the dealer's {dealer_score} points! {player._person_name} wins!\n")
                             player._Player__change_chips(player._current_bet * 2)
+                            player._current_bet = 0
                             if player._Player__chips >= 1000:
                                 self.dealer._call_pit_boss()
                                 print(f"The pit boss caught {player._person_name} counting cards and removed them from the game!")
@@ -207,8 +212,10 @@ class Table:
                             player._ties += 1
                             print(f"{player._person_name} ties with the dealer!\n")
                             player._Player__change_chips(player._current_bet)
+                            player._current_bet = 0
                         else:
                             player._losses += 1
+                            player._current_bet = 0
                             print(f"The dealer's hand is {dealer_score} points, which beats {player._person_name}'s {player_score} points. {player._person_name} loses!\n")
                 player._hand._discard_hand(self)
         table.dealer._hand._discard_hand(self)
@@ -227,7 +234,7 @@ class Table:
                 table.dealer._deck._deck_of_cards.append(card)
             table.dealer._deck._shuffle()
             table.discard_pile = []
-            print(f"There are now {len(table.dealer._deck.deck_of_cards)} cards in the deck.\n")
+            print(f"There are now {len(table.dealer._deck._deck_of_cards)} cards in the deck.\n")
 
 ## GAME RUN CODE
 
@@ -250,6 +257,9 @@ if __name__ == "__main__":
     # loop while there are still players in the game
     players_playing = 1
     while players_playing > 0:
+
+        # check for players at the table
+        players_playing = table.player_check()
         
         # get post-deal bets
         table.get_player_bets()
